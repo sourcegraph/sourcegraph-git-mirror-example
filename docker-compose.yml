@@ -1,0 +1,29 @@
+version: "3"
+services:
+  sourcegraph:
+    image: sourcegraph/server:3.1.1
+    container_name: sourcegraph
+    ports:
+      - "7080:7080"
+      - "2633:2633"
+    volumes:
+      - /tmp/sg-git-mirror/sg/config:/etc/sourcegraph
+      - /tmp/sg-git-mirror/sg/data:/var/opt/sourcegraph
+    networks:
+      - sourcegraph
+  gitolite:
+    image: gitolite-mirror:latest
+    container_name: gitolite
+    ports:
+      - "2222:22"
+    volumes:
+      - /tmp/sg-git-mirror/gitolite/keys:/etc/ssh/keys
+      - /tmp/sg-git-mirror/gitolite/git:/var/lib/git
+    environment:
+      - SSH_KEY_NAME
+      - SSH_KEY
+    command: sshd
+    networks:
+      - sourcegraph
+networks:
+  sourcegraph:
